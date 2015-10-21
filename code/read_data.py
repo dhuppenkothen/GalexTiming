@@ -1,7 +1,12 @@
+import argparse
+
 import numpy as np
 import pandas as pd
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+
+from gPhoton.gFind import gFind
+from gPhoton.gAperture import gAperture
 
 def strip(text):
     try:
@@ -134,4 +139,44 @@ def search_galex(coords, band, dt, obj_id, target_dir="./"):
                       'table',append=False)
 
     return
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Read data from a catalogue")
+
+    parser.add_argument("-f", "--filename", action="store", dest="filename", type=str,
+                        required=True, help="Catalogue file name and directory")
+
+    parser.add_argument("-b", "--band", action="store", dest="band", type=str,
+                        required=True, help="Either 'NUV' (near-UV) or 'FUV' (far-UV) band")
+ 
+    parser.add_argument("-t", "--dt", action="store", dest="dt", type=float,
+                        required=False, default=10.0, help="The time resolution of the light "+ 
+                        "curve (default 10 seconds)")
+ 
+    parser.add_argument("-d", "--targetdir", action="store", dest="target_dir", type=str,
+                       required=False, default="./", help="The target directory for the data (default: PWD)")
+ 
+    parser.add_argument('-s', '--startind', action="store", dest="start_ind", type=int,
+                        required=False, default=0, help="The index of the row in the catalogue to start with")
+
+    parser.add_argument("-e", "--endind", action="store", dest="end_ind", required=False, default="None",
+                        help="The index of the row in the catalogue to end with (default: last row")
+
+    clargs = parser.parse_args()
+
+    if clargs.end_ind == "None":
+        clargs.end_ind = None
+    else: 
+        clargs.end_ind = int(clargs.end_ind)
+    return clargs
+
+
+
+if __name__ == "__main__":
+    clargs = parse_args()
+
+    print(clargs)
+
+    read_catalogue(clargs.filename, band=clargs.band, dt=clargs.dt, target_dir=clargs.target_dir, 
+                   start_ind=clargs.start_ind, end_ind=clargs.end_ind)
 
